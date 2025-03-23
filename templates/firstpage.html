@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+    }
+    
+    html {
+      box-sizing: border-box;
+    }
+    
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    
+    .column {
+      float: left;
+      width: 33.3%;
+      margin-bottom: 16px;
+      padding: 0 8px;
+    }
+    
+    .card {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      margin: 8px;
+    }
+    
+    .about-section {
+      padding: 50px;
+      text-align: center;
+      background-color: #474e5d;
+      color: white;
+    }
+    
+    .container {
+      padding: 0 16px;
+    }
+    
+    .container::after, .row::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+    
+    .title {
+      color: grey;
+    }
+    
+    .button {
+      border: none;
+      outline: 0;
+      display: inline-block;
+      padding: 8px;
+      color: white;
+      background-color: #000;
+      text-align: center;
+      cursor: pointer;
+      width: 100%;
+    }
+    
+    .button:hover {
+      background-color: #555;
+    }
+    
+    @media screen and (max-width: 650px) {
+      .column {
+        width: 100%;
+        display: block;
+      }
+    }
+
+    html, body {
+      height: 100%;
+    }
+    
+    .container-fluid {
+      min-height: 100%;
+    }
+    
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      min-height: 100%;
+      margin-top: -360px;
+    }
+    
+    .column {
+      flex: 1 1 300px;
+    }
+
+  </style>
+  <title>Restaurant</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Menu Mastermind</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="#">MENU <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a href="{%url 'update'%}">VIEW MENU</a></li>
+          <li><a href="{%url 'add_menu'%}">UPDATE MENU</a></li>
+        </ul>
+      </li>
+      <li><a href="{%url 'home'%}">Take Review</a></li>
+      <li><a href="{%url 'solve'%}">Analytics</a></li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      <li><a href="{%url 'signup'%}"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a href="{%url 'login'%}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="about-section">
+  <h1>About Us</h1>
+  <p style="font-size:35px;color:#">Our website - MenuMastermind® aims to resolve an existing problem where the owner of a restaurant is not completely aware of the issues of their food services. This is resolved by using a huge collection of reviews which can be taken directly by our website or scraped over the web and produce meaningful analytics using machine learning.</p>
+
+</div>
+<br>
+<h1 style="text-align:center;">Our Team</h1>
+<br>
+<br>
+<div class="row">
+  <div class="column">
+    <div class="card">
+      <img src="https://cdn-icons-png.flaticon.com/512/21/21104.png" alt="Zuhaib" style="width:20%">
+      <div class="container">
+        <h2>Zuhaib</h2>
+        <p class="title">IT Engineer</p>
+        <p></p>
+        <p>160419737081@mjcollege.ac.in</p>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="column">
+    <div class="card">
+      <img src="https://cdn-icons-png.flaticon.com/512/21/21104.png" alt="Rashid" style="width:20%">
+      <div class="container">
+        <h2>Rashid</h2>
+        <p class="title">IT Engineer</p>
+        <p></p>
+        <p>160419737087@mjcollege.ac.in</p>
+        
+      </div>
+    </div>
+  </div>
+  
+  <div class="column">
+    <div class="card">
+      <img src="https://cdn-icons-png.flaticon.com/512/21/21104.png" alt="Karthik" style="width:20%">
+      <div class="container">
+        <h2>Karthik</h2>
+        <p class="title">IT Engineer</p>
+        <p></p>
+        <p>160419737089@mjcollege.ac.in</p>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>

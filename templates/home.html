@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Order and Review</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+
+<style>
+  /* Set background color and font */
+  body {
+  background-color: #e6f1f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+  }
+
+  /* Style the header */
+  header {
+    background-color: #222;
+    color: #FFF;
+    padding: 20px;
+    text-align: center;
+display: flex;
+flex-direction: column;
+align-items: center;
+  }
+
+  /* Style the form */
+  form {
+    background-color: #FFF;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Style the checkboxes */
+  input[type="checkbox"] {
+    display: none;
+  }
+
+  input[type="checkbox"] + label {
+    display: block;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+
+  input[type="checkbox"] + label:before {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background-color: #FFF;
+    border: 2px solid #AAA;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+
+  input[type="checkbox"]:checked + label:before {
+    content: "✓";
+    color: #FFF;
+    background-color: #F56A6A;
+    border-color: #F56A6A;
+  }
+
+  /* Style the text area */
+  #text-area {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border: 2px solid #AAA;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    resize: none;
+  }
+
+  /* Style the emoji keyboard */
+  #emoji-keyboard {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  #emoji-keyboard button {
+    margin: 0 5px;
+    border-radius: 50%;
+    background-color: #FFF;
+    border: 2px solid #AAA;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  #emoji-keyboard button:hover {
+    background-color: #EEE;
+  }
+
+  #emoji-keyboard button:focus {
+    outline: none;
+    border-color: #F56A6A;
+    box-shadow: 0 0 10px rgba(255,86,128,0.4);
+  }
+
+
+
+h1 {
+  font-size: 28px;
+  margin-top: 0;
+}
+
+h2 {
+  font-size: 24px;
+  margin-top: 0;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+li label {
+  font-size: 16px;
+}
+
+
+
+
+      button {
+        padding: 10px;
+        border-radius: 10px;
+        border: 0;
+        background-color: rgb(255, 56, 86);
+        letter-spacing: 1.5px;
+        font-size: 15px;
+        transition: all .3s ease;
+        box-shadow: rgb(201, 46, 70) 0px 10px 0px 0px;
+        color: hsl(0, 0%, 100%);
+        height: 30px;
+        width: 100%;
+        max-width: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      button:hover {
+        box-shadow: rgb(201, 46, 70) 0px 7px 0px 0px;
+      }
+
+      button:active {
+        background-color: rgb(255, 56, 86);
+        box-shadow: rgb(201, 46, 70) 0px 0px 0px 0px;
+        transform: translateY(5px);
+        transition: 200ms;
+      }
+	
+      .content {
+        max-width: 500px;
+        margin: auto;
+      }
+
+      #emoji-keyboard {
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      #emoji-keyboard button {
+        margin: 0 5px;
+      }
+
+button[type="submit"] {
+  margin-top: 20px;
+  align-self: center;
+}
+
+</style>
+<script>
+  function showAlert() {
+    alert("Submission successful!");
+  }
+  </script>
+  </head>
+  <body style= "background-color: #e6f1f6;">
+    <form method="post">
+      {% csrf_token %}
+      <br>
+      {% for item in all %}
+        <li>
+          <input type="checkbox" name="items" id="item{{ item.id }}" value="{{ item.item_name }}">
+          <label for ="item{{item.id}}">{{ item.item_name }}---{{ item.item_price }}</label> 
+        </li>   
+      {% endfor %}
+      <br><br>
+      <label for="review_pista"></label>
+      <textarea id="text-area" name="review_pista"></textarea>
+      <div id="emoji-keyboard"></div>
+      <br>
+      <button type="submit" onclick="showAlert()">Submit</button>
+    </form>
+
+    <script>
+      const emojis = ['👍', '👎', '❤️', '😍', '🔥', '😀', '😋', '😐', '🤔', '😠', '😔', '😭', '💩'];
+      const rows = 2;
+      const cols = 4;
+
+      function generateKeyboard() {
+        let html = '';
+        for (let i = 0; i < emojis.length; i++) {
+          html += '<button type="button" onclick="insertEmoji(\'' + emojis[i] + '\')">' + emojis[i] + '</button>';
+        }
+        document.getElementById('emoji-keyboard').innerHTML = html;
+      }
+
+      function insertEmoji(emoji) {
+        const textarea = document.getElementById('text-area');
+        textarea.value += emoji;
+        textarea.focus();
+      }
+
+      generateKeyboard();
+    </script>
+  </body>
+</html>
