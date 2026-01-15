@@ -1,0 +1,8 @@
+Currently I have to do.
+
+
+--> install the Django project - done
+
+--> Setup the models.
+
+--> Build all the connection between tables and how the data will be saved this should be done as soon as the possible as this is the most important part(still figuring out how to.)
