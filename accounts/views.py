@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from rest_framework import viewsets
 from .models import Dish, Order, Review
 from .serializers import DishSerializer, OrderSerializer, ReviewSerializer
+#from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 def home(request):
     return HttpResponse("""
@@ -21,8 +23,24 @@ class DishViewSet(viewsets.ReadOnlyModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-
-# 3. Reviews API (Where the ML will intercept data later)
+# 3. Reviews API (With ML Interceptor)
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    def perform_create(self, serializer):
+        # 1. Grab the raw text the customer just typed
+        feedback = serializer.validated_data.get('feedback_text', '')
+        
+        # 2. Run the VADER Sentiment Analysis
+        # Initialize the VADER analyzer
+        analyzer = SentimentIntensityAnalyzer()
+        
+        # This returns a dictionary of scores: {'neg': 0.0, 'neu': 0.5, 'pos': 0.5, 'compound': 0.8}
+        sentiment_dict = analyzer.polarity_scores(feedback)
+        
+        # The 'compound' score is the overall metric from -1.0 (extremely negative) to 1.0 (extremely positive)
+        ai_score = sentiment_dict['compound']
+        
+        # 3. Save the review to the database, injecting the VADER AI score automatically!
+        serializer.save(sentiment_score=ai_score)
