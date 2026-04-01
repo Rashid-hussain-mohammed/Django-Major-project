@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Dish, Order, Review
 from .serializers import DishSerializer, OrderSerializer, ReviewSerializer
 #from textblob import TextBlob
@@ -18,15 +19,19 @@ class DishViewSet(viewsets.ReadOnlyModelViewSet):
     # Only show dishes that are actually available!
     queryset = Dish.objects.filter(is_available=True) 
     serializer_class = DishSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 # 2. Orders API (For placing and tracking orders)
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
 # 3. Reviews API (With ML Interceptor)
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         # 1. Grab the raw text the customer just typed
