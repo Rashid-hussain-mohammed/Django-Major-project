@@ -6,6 +6,7 @@ from .models import Dish, Order, Review
 from .serializers import DishSerializer, OrderSerializer, ReviewSerializer
 #from textblob import TextBlob
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from rest_framework.permissions import AllowAny
 
 def home(request):
     return HttpResponse("""
@@ -25,7 +26,7 @@ class DishViewSet(viewsets.ReadOnlyModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 # 3. Reviews API (With ML Interceptor)
 class ReviewViewSet(viewsets.ModelViewSet):

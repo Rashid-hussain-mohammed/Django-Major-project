@@ -1,0 +1,15 @@
+<router-outlet></router-outlet>
+
+@if (cart.totalItems() > 0) {
+  <div class="fixed bottom-6 right-6 z-50">
+    <button routerLink="/cart" class="bg-emerald-600 text-white shadow-xl shadow-emerald-600/30 px-6 py-4 rounded-full font-bold flex items-center gap-3 hover:bg-emerald-700 transition-transform hover:scale-105 active:scale-95">
+      <span>🛒 View Cart</span>
+      <span class="bg-white text-emerald-700 px-2 py-0.5 rounded-full text-sm">
+        {{ cart.totalItems() }}
+      </span>
+      <span class="ml-2 border-l border-emerald-500 pl-3">
+        €{{ cart.totalPrice() | number:'1.2-2' }}
+      </span>
+    </button>
+  </div>
+}

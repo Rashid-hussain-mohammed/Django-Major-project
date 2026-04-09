@@ -1,5 +1,13 @@
-venv/
+# Python / Django
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Database
 db.sqlite3
-.DS_Store
+
+# Docker
+.dockerignore

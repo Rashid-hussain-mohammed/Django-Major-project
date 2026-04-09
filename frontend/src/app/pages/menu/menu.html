@@ -1,0 +1,29 @@
+<div class="max-w-4xl mx-auto p-4 mt-6">
+  <h2 class="text-3xl font-extrabold text-center text-gray-900 mb-8">🍽️ Digital Menu</h2>
+  
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    
+    @for (dish of dishes; track dish.id) {
+      <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
+        <div class="p-5 flex-grow flex flex-col">
+          <h5 class="text-xl font-bold text-gray-800 mb-2">{{ dish.name }}</h5>
+          <p class="text-gray-500 text-sm mb-4 line-clamp-3 flex-grow">{{ dish.description }}</p>
+          
+          <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
+            <span class="text-lg font-black text-emerald-600">€{{ dish.price }}</span>
+            <button 
+                (click)="addToCart(dish)" 
+                class="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors">
+            Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="col-span-full text-center text-gray-500 py-10">
+        <p class="text-lg">Loading menu from the kitchen...</p>
+      </div>
+    }
+
+  </div>
+</div>

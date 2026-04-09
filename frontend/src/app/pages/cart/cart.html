@@ -1,0 +1,42 @@
+<div class="max-w-3xl mx-auto p-4 mt-6">
+  
+  <div class="flex items-center gap-4 mb-8">
+    <button routerLink="/" class="text-gray-500 hover:text-black transition-colors font-bold text-xl">
+      &larr; Back to Menu
+    </button>
+    <h2 class="text-3xl font-extrabold text-gray-900 m-0">Your Order</h2>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
+    @for (item of cartService.cartItems(); track item.id) {
+      <div class="flex justify-between items-center p-4 border-b border-gray-50 last:border-0">
+        <div>
+          <h4 class="font-bold text-gray-800">{{ item.name }}</h4>
+          <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
+        </div>
+        <div class="font-black text-emerald-600">
+          €{{ getItemTotal(item.price, item.quantity) | number:'1.2-2' }}
+        </div>
+      </div>
+    } @empty {
+      <div class="p-8 text-center text-gray-500">
+        Your cart is empty! 🍔
+      </div>
+    }
+  </div>
+
+  @if (cartService.totalItems() > 0) {
+    <div class="bg-gray-50 p-6 rounded-2xl flex flex-col gap-4">
+      <div class="flex justify-between items-center text-xl font-bold">
+        <span>Total:</span>
+        <span class="text-emerald-700">€{{ cartService.totalPrice() | number:'1.2-2' }}</span>
+      </div>
+      <button 
+        (click)="checkout()" 
+        [disabled]="isSubmitting"
+        class="w-full bg-black text-white py-4 rounded-xl font-bold text-lg hover:bg-gray-800 transition-colors disabled:bg-gray-400">
+        {{ isSubmitting ? 'Sending Order...' : 'Send Order to Kitchen' }}
+      </button>
+    </div>
+  }
+</div>
