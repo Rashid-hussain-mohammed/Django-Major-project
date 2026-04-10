@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .models import Dish, Order, Review
-from .serializers import DishSerializer, OrderSerializer, ReviewSerializer
-#from textblob import TextBlob
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.decorators import api_view, permission_classes # New for AI
+from rest_framework.response import Response # New for AI
+import re # Python's regex tool for the AI
+
+from .models import Dish, Order
+from .serializers import DishSerializer, OrderSerializer
 
 def home(request):
     return HttpResponse("""
@@ -15,9 +16,9 @@ def home(request):
             <p>Identity & Access Management Portal</p>
         </div>
     """)
+
 # 1. Menu API (Customers can only read this, not edit)
 class DishViewSet(viewsets.ReadOnlyModelViewSet):
-    # Only show dishes that are actually available!
     queryset = Dish.objects.filter(is_available=True) 
     serializer_class = DishSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -28,25 +29,29 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [AllowAny]
 
-# 3. Reviews API (With ML Interceptor)
-class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+# 3. AI Order NLP Parser (The "Brain")
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def ai_order_parser(request):
+    text = request.data.get('text', '').lower()
+    available_dishes = Dish.objects.filter(is_available=True)
+    detected_items = []
 
-    def perform_create(self, serializer):
-        # 1. Grab the raw text the customer just typed
-        feedback = serializer.validated_data.get('feedback_text', '')
-        
-        # 2. Run the VADER Sentiment Analysis
-        # Initialize the VADER analyzer
-        analyzer = SentimentIntensityAnalyzer()
-        
-        # This returns a dictionary of scores: {'neg': 0.0, 'neu': 0.5, 'pos': 0.5, 'compound': 0.8}
-        sentiment_dict = analyzer.polarity_scores(feedback)
-        
-        # The 'compound' score is the overall metric from -1.0 (extremely negative) to 1.0 (extremely positive)
-        ai_score = sentiment_dict['compound']
-        
-        # 3. Save the review to the database, injecting the VADER AI score automatically!
-        serializer.save(sentiment_score=ai_score)
+    for dish in available_dishes:
+        dish_name = dish.name.lower()
+        if dish_name in text:
+            quantity = 1 # Default to 1
+            
+            # Smart Regex: Look for a number right before the food name!
+            match = re.search(rf'(\d+)\s+{re.escape(dish_name)}', text)
+            if match:
+                quantity = int(match.group(1))
+
+            detected_items.append({
+                "id": dish.id,
+                "name": dish.name,
+                "price": str(dish.price),
+                "quantity": quantity
+            })
+
+    return Response({"parsed_items": detected_items})

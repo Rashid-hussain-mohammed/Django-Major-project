@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { RouterLink, Router } from '@angular/router'; // 1. Add Router
+import { RouterLink, Router } from '@angular/router'; 
 import { Cart as CartService } from '../../services/cart'; 
-import { ApiService } from '../../services/api'; // 2. Import API Service
+import { ApiService } from '../../services/api'; 
 
 @Component({
   selector: 'app-cart',
@@ -12,9 +12,8 @@ import { ApiService } from '../../services/api'; // 2. Import API Service
   styleUrl: './cart.scss'
 })
 export class Cart {
-  isSubmitting = false; // Prevents double-clicking the checkout button
+  isSubmitting = false; 
 
-  // 3. Inject the Router and API Service
   constructor(
     public cartService: CartService,
     private api: ApiService,
@@ -25,7 +24,16 @@ export class Cart {
     return Number(price) * quantity;
   }
 
-  // 4. The actual checkout function
+  // --- NEW: Add and Remove items from inside the cart ---
+  addToCart(item: any) {
+    this.cartService.addToCart(item);
+  }
+
+  removeFromCart(item: any) {
+    this.cartService.removeFromCart(item);
+  }
+  // ------------------------------------------------------
+
   checkout() {
     if (this.cartService.totalItems() === 0) return;
     
@@ -43,9 +51,9 @@ export class Cart {
 
     this.api.submitOrder(payload).subscribe({
       next: (response) => {
-        alert('🎉 Order sent successfully to the kitchen!');
-        this.cartService.clearCart(); // Empty the cart
-        this.router.navigate(['/']); // Redirect to the main menu
+        alert('Order sent successfully to the kitchen!');
+        this.cartService.clearCart(); 
+        this.router.navigate(['/']); 
       },
       error: (err) => {
         console.error('Checkout failed:', err);

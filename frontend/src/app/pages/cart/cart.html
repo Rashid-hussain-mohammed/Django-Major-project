@@ -12,15 +12,30 @@
       <div class="flex justify-between items-center p-4 border-b border-gray-50 last:border-0">
         <div>
           <h4 class="font-bold text-gray-800">{{ item.name }}</h4>
-          <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
-        </div>
+          
+          <div class="mt-2 flex items-center space-x-2 bg-gray-50 rounded-lg p-1 w-max border border-gray-200">
+            <button 
+              (click)="removeFromCart(item)" 
+              class="w-8 h-8 rounded bg-white shadow-sm flex items-center justify-center text-gray-700 font-bold hover:text-red-500 transition-colors">
+              -
+            </button>
+            <span class="font-bold w-8 text-center text-gray-800">
+              {{ item.quantity }}
+            </span>
+            <button 
+              (click)="addToCart(item)" 
+              class="w-8 h-8 rounded bg-white shadow-sm flex items-center justify-center text-gray-700 font-bold hover:text-emerald-600 transition-colors">
+              +
+            </button>
+          </div>
+          </div>
         <div class="font-black text-emerald-600">
           €{{ getItemTotal(item.price, item.quantity) | number:'1.2-2' }}
         </div>
       </div>
     } @empty {
       <div class="p-8 text-center text-gray-500">
-        Your cart is empty! 🍔
+        Your cart is empty! 
       </div>
     }
   </div>

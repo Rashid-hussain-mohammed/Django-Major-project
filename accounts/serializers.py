@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Dish, Order, OrderItem, Review
+from .models import Dish, Order, OrderItem
 
 class DishSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,9 +38,3 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'table', 'status', 'total_price', 'created_at', 'items']
 
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = '__all__'
-        # This tells the API: "Don't let the user submit these; the backend handles them."
-        read_only_fields = ['sentiment_score', 'created_at']

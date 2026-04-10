@@ -18,4 +18,8 @@ export class ApiService {
     // Assuming your Django urls.py has an endpoint for /orders/
     return this.http.post(`${this.baseUrl}/orders/`, orderData);
   }
+  // Send a raw sentence to Django's AI parser
+  parseOrderText(text: string) {
+    return this.http.post<any>(`${this.baseUrl}/ai-order/`, { text });
+  }
 }

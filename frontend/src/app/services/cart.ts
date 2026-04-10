@@ -40,6 +40,27 @@ export class Cart {
       return [...items, { id: dish.id, name: dish.name, price: dish.price, quantity: 1 }];
     });
   }
+  // Add this inside your Cart service class
+  // Add this inside your Cart service class
+  removeFromCart(dish: any) {
+    this.cartItems.update(items => {
+      // FIX: We only check for i.id now!
+      const index = items.findIndex(i => i.id === dish.id);
+      
+      if (index !== -1) {
+        if (items[index].quantity > 1) {
+          // If they have more than 1, just decrease the quantity by 1
+          const newItems = [...items];
+          newItems[index] = { ...newItems[index], quantity: newItems[index].quantity - 1 };
+          return newItems;
+        } else {
+          // If they only have 1, remove it from the cart entirely
+          return items.filter((_, i) => i !== index);
+        }
+      }
+      return items;
+    });
+  }
   clearCart() {
     this.cartItems.set([]); // This instantly resets the Signal to an empty array!
   }
