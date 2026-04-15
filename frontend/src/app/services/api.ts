@@ -22,4 +22,8 @@ export class ApiService {
   parseOrderText(text: string) {
     return this.http.post<any>(`${this.baseUrl}/ai-order/`, { text });
   }
+  // Submit a review to the AI Engine
+  submitReview(reviewData: any) {
+    return this.http.post<any>(`${this.baseUrl}/reviews/`, reviewData);
+  }
 }

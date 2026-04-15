@@ -53,7 +53,7 @@ export class Cart {
       next: (response) => {
         alert('Order sent successfully to the kitchen!');
         this.cartService.clearCart(); 
-        this.router.navigate(['/']); 
+        this.router.navigate(['/success'], { queryParams: { orderId: response.id } }); 
       },
       error: (err) => {
         console.error('Checkout failed:', err);
