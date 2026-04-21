@@ -26,4 +26,13 @@ export class ApiService {
   submitReview(reviewData: any) {
     return this.http.post<any>(`${this.baseUrl}/reviews/`, reviewData);
   }
+  // Register a new restaurant owner
+  registerUser(userData: any) {
+    return this.http.post<any>(`${this.baseUrl}/accounts/register/`, userData);
+  }
+
+  // Login an existing owner
+  loginUser(credentials: any) {
+    return this.http.post<any>(`${this.baseUrl}/accounts/login/`, credentials);
+  }
 }

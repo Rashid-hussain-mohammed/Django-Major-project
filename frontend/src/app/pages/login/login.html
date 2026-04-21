@@ -1,0 +1,41 @@
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+  <div class="sm:mx-auto sm:w-full sm:max-w-md text-center">
+    <div class="text-5xl mb-6">🍽️</div>
+    <h2 class="text-center text-3xl font-extrabold text-gray-900">
+      Restaurant Login
+    </h2>
+    <p class="mt-2 text-center text-sm text-gray-600">
+      Or
+      <a routerLink="/register" class="font-medium text-emerald-600 hover:text-emerald-500">
+        create a new restaurant account
+      </a>
+    </p>
+  </div>
+
+  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <div class="bg-white py-8 px-4 shadow sm:rounded-2xl sm:px-10 border border-gray-100">
+      <form class="space-y-6" (ngSubmit)="onSubmit()">
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Email address</label>
+          <div class="mt-1">
+            <input type="email" [(ngModel)]="email" name="email" required class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Password</label>
+          <div class="mt-1">
+            <input type="password" [(ngModel)]="password" name="password" required class="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-black focus:border-black sm:text-sm">
+          </div>
+        </div>
+
+        <div>
+          <button type="submit" [disabled]="isSubmitting || !email || !password" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-black hover:bg-gray-800 focus:outline-none disabled:bg-gray-400 transition-colors">
+            {{ isSubmitting ? 'Signing in...' : 'Sign in' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
