@@ -27,12 +27,13 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/reviews/`, reviewData);
   }
   // Register a new restaurant owner
+// Register a new restaurant owner
   registerUser(userData: any) {
-    return this.http.post<any>(`${this.baseUrl}/accounts/register/`, userData);
+    return this.http.post<any>(`${this.baseUrl}/register/`, userData);
   }
 
   // Login an existing owner
   loginUser(credentials: any) {
-    return this.http.post<any>(`${this.baseUrl}/accounts/login/`, credentials);
+    return this.http.post<any>(`${this.baseUrl}/login/`, credentials);
   }
 }
