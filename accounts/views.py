@@ -13,6 +13,7 @@ from rest_framework import status
 
 from .models import Dish, Order
 from .serializers import DishSerializer, OrderSerializer
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
 
 User = get_user_model()
 
@@ -34,7 +35,14 @@ class DishViewSet(viewsets.ReadOnlyModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [AllowAny]
+    
+    # NEW: Dynamic Permissions!
+    def get_permissions(self):
+        # Customers can POST (create) an order without logging in
+        if self.request.method == 'POST':
+            return [AllowAny()]
+        # Managers MUST be logged in with a token to GET (read) the dashboard data
+        return [IsAuthenticated()]
 
 # 3. AI Order NLP Parser (The "Brain")
 @api_view(['POST'])

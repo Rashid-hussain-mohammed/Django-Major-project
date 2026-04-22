@@ -1,0 +1,106 @@
+<div class="min-h-screen bg-gray-50 pb-12">
+  
+  <nav class="bg-black text-white p-4 shadow-md">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="text-xl font-black flex items-center gap-2">
+        <span>🍽️</span> Smart Restaurant OS
+      </div>
+      <button routerLink="/" class="text-sm text-gray-300 hover:text-white transition-colors font-bold">
+        &larr; Back to Home
+      </button>
+    </div>
+  </nav>
+
+  @if (isLoading) {
+    <div class="text-center mt-20 text-gray-500 font-bold text-xl animate-pulse">
+      Loading Dashboard Data...
+    </div>
+  } @else {
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p class="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Total Orders</p>
+          <p class="text-4xl font-black text-gray-900">{{ orders.length }}</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+          <p class="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Total Reviews</p>
+          <p class="text-4xl font-black text-gray-900">{{ reviews.length }}</p>
+        </div>
+
+        <div class="bg-gray-900 p-6 rounded-2xl shadow-sm text-white">
+          <p class="text-sm text-gray-400 font-bold uppercase tracking-wider mb-1">Avg AI Sentiment</p>
+          <p class="text-4xl font-black" 
+             [class.text-emerald-400]="averageSentiment > 0" 
+             [class.text-red-400]="averageSentiment < 0">
+            {{ averageSentiment | number:'1.2-2' }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">Scale: -1.0 to 1.0</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-900">Live Orders</h2>
+            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">Auto-updating</span>
+          </div>
+          <div class="p-6 space-y-4">
+            @for (order of orders; track order.id) {
+              <div class="border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-center mb-3">
+                  <span class="font-black text-lg text-gray-800">Order #{{ order.id }}</span>
+                  <span class="text-sm font-bold bg-gray-100 text-gray-600 px-2 py-1 rounded">Table {{ order.table }}</span>
+                </div>
+                <div class="text-sm text-gray-500 mb-3">{{ order.created_at | date:'short' }}</div>
+                <div class="flex justify-between items-center pt-3 border-t border-gray-50">
+                  <span class="font-bold text-emerald-600">€{{ order.total_price }}</span>
+                  <span class="text-xs font-bold uppercase px-2 py-1 rounded bg-yellow-100 text-yellow-800">
+                    {{ order.status }}
+                  </span>
+                </div>
+              </div>
+            } @empty {
+              <p class="text-gray-500 text-center py-4">No active orders right now.</p>
+            }
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <div class="bg-gray-900 px-6 py-4 border-b border-gray-800 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-white">AI Sentiment Analysis</h2>
+            <span class="bg-gray-700 text-gray-300 text-xs font-bold px-3 py-1 rounded-full">Powered by VADER</span>
+          </div>
+          <div class="p-6 space-y-4">
+            @for (review of reviews; track review.id) {
+              <div class="border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start mb-2">
+                  <span class="text-xs font-bold text-gray-400 uppercase">Order #{{ review.order }}</span>
+                  
+                  <span class="font-black" 
+                        [class.text-emerald-500]="review.sentiment_score > 0"
+                        [class.text-red-500]="review.sentiment_score < 0"
+                        [class.text-gray-500]="review.sentiment_score === 0">
+                    Score: {{ review.sentiment_score | number:'1.2-2' }}
+                  </span>
+                </div>
+                <p class="text-gray-800 font-medium italic mt-2 text-sm leading-relaxed">
+                  "{{ review.feedback_text }}"
+                </p>
+                <div class="flex gap-4 mt-4 pt-3 border-t border-gray-50 text-xs font-bold text-gray-500">
+                  <span>Food: {{ review.food_rating }}/10</span>
+                  <span>Service: {{ review.service_rating }}/10</span>
+                </div>
+              </div>
+            } @empty {
+              <p class="text-gray-500 text-center py-4">No AI feedback generated yet.</p>
+            }
+          </div>
+        </div>
+
+      </div>
+    </div>
+  }
+</div>

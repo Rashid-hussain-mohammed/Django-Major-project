@@ -5,6 +5,7 @@ import { Success } from './pages/success/success';
 import { Landing } from './pages/landing/landing'; //Landing page
 import { Register } from './pages/register/register';
 import { Login } from './pages/login/login';
+import { Dashboard } from './pages/dashboard/dashboard';
 
 export const routes: Routes = [
   // 2. Make the Landing page the default route
@@ -16,6 +17,6 @@ export const routes: Routes = [
   { path: 'menu', component: Menu }, 
   { path: 'cart', component: CartPage }, 
   { path: 'success', component: Success }, 
-
+  { path: 'dashboard', component: Dashboard },
   { path: '**', redirectTo: '' } 
 ];

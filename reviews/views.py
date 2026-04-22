@@ -8,7 +8,14 @@ from .serializers import ReviewSerializer
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [AllowAny]
+
+    # NEW: Dynamic Permissions!
+    def get_permissions(self):
+        # Customers can POST reviews without logging in
+        if self.request.method == 'POST':
+            return [AllowAny()]
+        # Managers MUST be logged in to view the AI scores
+        return [IsAuthenticated()]
 
     def perform_create(self, serializer):
         # Grab the raw text the customer just typed

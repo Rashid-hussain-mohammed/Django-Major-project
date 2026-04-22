@@ -14,6 +14,15 @@ export class ApiService {
   getDishes(): Observable<any> {
     return this.http.get(`${this.baseUrl}/dishes/`);
   }
+  // Fetch all orders for the dashboard
+  getOrders(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/orders/`);
+  }
+
+  // Fetch all AI reviews for the dashboard
+  getReviews(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/reviews/`);
+  }
   submitOrder(orderData: any): Observable<any> {
     // Assuming your Django urls.py has an endpoint for /orders/
     return this.http.post(`${this.baseUrl}/orders/`, orderData);
