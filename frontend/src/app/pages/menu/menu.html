@@ -1,71 +1,66 @@
-<div class="max-w-4xl mx-auto p-4 mt-6">
-  <h2 class="text-3xl font-extrabold text-center text-gray-900 mb-8">Digital Menu</h2>
+<div class="min-h-screen bg-gray-50 pb-20">
   
-  <div class="max-w-2xl mx-auto mb-10 px-4 mt-6">
-    <div class="relative group">
-      <div class="absolute -inset-1 bg-gradient-to-r from-emerald-600 to-teal-400 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+  <nav class="bg-white p-4 shadow-sm sticky top-0 z-10">
+    <div class="max-w-4xl mx-auto flex justify-between items-center">
+      <button routerLink="/" class="text-xl font-black text-gray-900 flex items-center gap-2">
+        <span>🍽️</span> Smart Menu
+      </button>
+      <button routerLink="/cart" class="text-sm bg-gray-900 text-white px-4 py-2 rounded-lg font-bold hover:bg-gray-800 transition-colors">
+        View Cart
+      </button>
+    </div>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-4 mt-8">
+    
+    <div class="bg-emerald-50 border border-emerald-200 rounded-3xl p-6 md:p-8 mb-12 shadow-sm relative overflow-hidden">
+      <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
       
-      <div class="relative flex items-center bg-white rounded-2xl p-2 shadow-sm border border-gray-100">
+      <div class="relative z-10">
+        <h2 class="text-2xl font-black text-emerald-950 mb-2">Just tell us what you want.</h2>
+        <p class="text-emerald-700 mb-6 font-medium">Type naturally, and our AI will build your order instantly.</p>
         
-        <input 
-          #aiInput
-          (keyup.enter)="submitAiCommand(aiInput)"
-          [disabled]="isAiLoading"
-          type="text" 
-          placeholder="Type a sentence like: 'I am hungry, I need 2 burgers and a pizza'" 
-          class="w-full py-4 px-4 text-gray-700 bg-transparent outline-none disabled:opacity-50"
-        >
-        
-        <button 
-          (click)="submitAiCommand(aiInput)"
-          [disabled]="isAiLoading"
-          class="bg-black text-white font-bold py-3 px-6 rounded-xl hover:bg-gray-800 transition-colors whitespace-nowrap disabled:bg-gray-400">
-          {{ isAiLoading ? 'Thinking...' : 'Order by chat' }}
-        </button>
+        <div class="flex flex-col md:flex-row gap-4">
+          <input [(ngModel)]="orderText" 
+                 (keyup.enter)="submitToAI()"
+                 type="text" 
+                 placeholder="e.g., I'll take 2 Signature Burgers and a Pizza..." 
+                 class="flex-1 px-6 py-4 rounded-2xl border-2 border-emerald-100 focus:border-emerald-500 focus:ring-0 outline-none text-lg text-gray-800 shadow-inner">
+          
+          <button (click)="submitToAI()" 
+                  [disabled]="isParsing || !orderText"
+                  class="bg-emerald-600 text-white font-bold text-lg px-8 py-4 rounded-2xl hover:bg-emerald-700 transition-all shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed min-w-[160px]">
+            @if (isParsing) {
+              <span class="animate-pulse">Thinking...</span>
+            } @else {
+              Build Order ✨
+            }
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+    <h3 class="text-xl font-black text-gray-900 mb-6 ml-2">Our Menu</h3>
     
-    @for (dish of dishes; track dish.id) {
-      <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col">
-        <div class="p-5 flex-grow flex flex-col">
-          <h5 class="text-xl font-bold text-gray-800 mb-2">{{ dish.name }}</h5>
-          <p class="text-gray-500 text-sm mb-4 line-clamp-3 flex-grow">{{ dish.description }}</p>
-          
-          <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-50 h-14">
-            <span class="text-lg font-black text-emerald-600">€{{ dish.price }}</span>
-            
-            @if (getItemQuantity(dish.id) > 0) {
-              <div class="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
-                <button 
-                  (click)="removeFromCart(dish)" 
-                  class="w-8 h-8 rounded bg-white shadow-sm flex items-center justify-center text-gray-700 font-bold hover:text-red-500 transition-colors">
-                  -
-                </button>
-                <span class="font-bold w-6 text-center text-gray-800">
-                  {{ getItemQuantity(dish.id) }}
-                </span>
-                <button 
-                  (click)="addToCart(dish)" 
-                  class="w-8 h-8 rounded bg-white shadow-sm flex items-center justify-center text-gray-700 font-bold hover:text-emerald-600 transition-colors">
-                  +
-                </button>
-              </div>
-            } @else {
-              <button 
-                  (click)="addToCart(dish)" 
-                  class="bg-black text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors">
-              Add to Cart
-              </button>
-            }
-          </div>
-          </div>
+    @if (isLoading) {
+      <div class="flex justify-center py-20">
+        <div class="animate-pulse text-gray-400 font-bold text-xl">Loading Menu...</div>
       </div>
-    } @empty {
-      <div class="col-span-full text-center text-gray-500 py-10">
-        <p class="text-lg">Loading menu from the kitchen...</p>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @for (dish of dishes; track dish.id) {
+          <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex justify-between items-start mb-2">
+              <h4 class="text-xl font-black text-gray-900">{{ dish.name }}</h4>
+              <span class="bg-gray-100 text-gray-800 font-black px-3 py-1 rounded-xl">€{{ dish.price }}</span>
+            </div>
+            <p class="text-gray-500 text-sm leading-relaxed">{{ dish.description }}</p>
+          </div>
+        } @empty {
+          <div class="col-span-full text-center py-12 text-gray-500 font-bold bg-white rounded-3xl border border-gray-100">
+            No dishes are currently available. Check back later!
+          </div>
+        }
       </div>
     }
 

@@ -6,6 +6,7 @@ import { Landing } from './pages/landing/landing'; //Landing page
 import { Register } from './pages/register/register';
 import { Login } from './pages/login/login';
 import { Dashboard } from './pages/dashboard/dashboard';
+import { authGuard } from './guards/auth-guard';
 
 export const routes: Routes = [
   // 2. Make the Landing page the default route
@@ -14,9 +15,9 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   
   // 3. Move the customer ordering system to /menu
-  { path: 'menu', component: Menu }, 
+  { path: 'menu/:restaurantId/:tableId', component: Menu }, 
   { path: 'cart', component: CartPage }, 
   { path: 'success', component: Success }, 
-  { path: 'dashboard', component: Dashboard },
+  { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },
   { path: '**', redirectTo: '' } 
 ];

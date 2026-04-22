@@ -14,6 +14,15 @@ export class ApiService {
   getDishes(): Observable<any> {
     return this.http.get(`${this.baseUrl}/dishes/`);
   }
+  // Add a new dish to the menu
+  addDish(dishData: any): Observable<any> {
+    return this.http.post(`${this.baseUrl}/dishes/`, dishData);
+  }
+
+  // Delete a dish from the menu
+  deleteDish(dishId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/dishes/${dishId}/`);
+  }
   // Fetch all orders for the dashboard
   getOrders(): Observable<any> {
     return this.http.get(`${this.baseUrl}/orders/`);
@@ -28,8 +37,12 @@ export class ApiService {
     return this.http.post(`${this.baseUrl}/orders/`, orderData);
   }
   // Send a raw sentence to Django's AI parser
-  parseOrderText(text: string) {
-    return this.http.post<any>(`${this.baseUrl}/ai-order/`, { text });
+// Send the customer's text AND their restaurant ID to the AI
+  parseOrderText(text: string, restaurantId: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/ai-parse/`, { 
+      text: text, 
+      restaurant_id: restaurantId 
+    });
   }
   // Submit a review to the AI Engine
   submitReview(reviewData: any) {
@@ -45,4 +58,9 @@ export class ApiService {
   loginUser(credentials: any) {
     return this.http.post<any>(`${this.baseUrl}/login/`, credentials);
   }
+  // Fetch dishes for a specific restaurant ID
+getDishesByRestaurant(restaurantId: string): Observable<any> {
+  // We send the ID as a "query parameter" (e.g., ?restaurant=5)
+  return this.http.get(`${this.baseUrl}/dishes/?restaurant=${restaurantId}`);
+}
 }

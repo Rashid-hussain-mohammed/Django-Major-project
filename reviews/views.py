@@ -16,6 +16,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
             return [AllowAny()]
         # Managers MUST be logged in to view the AI scores
         return [IsAuthenticated()]
+    def get_queryset(self):
+        # Managers ONLY see their own AI reviews
+        if self.request.user.is_authenticated:
+            return Review.objects.filter(owner=self.request.user)
+        return Review.objects.none()
 
     def perform_create(self, serializer):
         # Grab the raw text the customer just typed

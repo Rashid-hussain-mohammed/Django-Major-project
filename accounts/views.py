@@ -26,23 +26,41 @@ def home(request):
     """)
 
 # 1. Menu API (Customers can only read this, not edit)
-class DishViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Dish.objects.filter(is_available=True) 
+class DishViewSet(viewsets.ModelViewSet):
+    queryset = Dish.objects.all() 
     serializer_class = DishSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        # PRIORITY 1: If the URL asks for a specific QR Code Menu, show it!
+        # This allows even logged-in managers to test the customer view.
+        restaurant_id = self.request.query_params.get('restaurant')
+        if restaurant_id:
+            return Dish.objects.filter(owner_id=restaurant_id, is_available=True)
+
+        # PRIORITY 2: If no QR code is in the URL, check if a Manager is looking at their Dashboard
+        if self.request.user.is_authenticated:
+            return Dish.objects.filter(owner=self.request.user)
+            
+        # PRIORITY 3: Fallback
+        return Dish.objects.none()
+
 
 # 2. Orders API (For placing and tracking orders)
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     
-    # NEW: Dynamic Permissions!
     def get_permissions(self):
-        # Customers can POST (create) an order without logging in
         if self.request.method == 'POST':
             return [AllowAny()]
-        # Managers MUST be logged in with a token to GET (read) the dashboard data
         return [IsAuthenticated()]
+
+    def get_queryset(self):
+        # Managers ONLY see their own active orders
+        if self.request.user.is_authenticated:
+            return Order.objects.filter(owner=self.request.user)
+        return Order.objects.none() # Guests can't read the order list!
 
 # 3. AI Order NLP Parser (The "Brain")
 @api_view(['POST'])
