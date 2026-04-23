@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ApiService } from '../../services/api';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Cart as CartService } from '../../services/cart'; 
 
 @Component({
   selector: 'app-menu',
@@ -13,37 +14,35 @@ export class Menu implements OnInit {
   dishes: any[] = [];
   isLoading = true;
   
-  // SaaS Routing Variables
-  restaurantId: string | null = null;
-  tableId: string | null = null;
+  // NEW: Only looking for the secret UUID now
+  secureId: string | null = null; 
   
-  orderText: string = '';
-  isParsing = false;
+  searchQuery: string = ''; 
 
   constructor(
     private api: ApiService, 
     private router: Router,
     private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
+    public cartService: CartService 
   ) {}
 
   ngOnInit() {
-    this.restaurantId = this.route.snapshot.paramMap.get('restaurantId');
-    this.tableId = this.route.snapshot.paramMap.get('tableId');
+    // Grab the UUID from the URL (e.g., /menu/a1b2c3d4-...)
+    this.secureId = this.route.snapshot.paramMap.get('secureId');
 
-    if (this.restaurantId && this.tableId) {
-      localStorage.setItem('currentRestaurant', this.restaurantId);
-      localStorage.setItem('currentTable', this.tableId);
+    if (this.secureId) {
+      // Save the secret ID to memory so the Cart can use it later
+      localStorage.setItem('currentSecureId', this.secureId);
       
-      this.api.getDishesByRestaurant(this.restaurantId).subscribe({
+      this.api.getDishesByRestaurant(this.secureId).subscribe({
         next: (data) => {
-          console.log('✅ UI RECEIVED DATA:', data); // <--- This will prove Angular sees it!
           this.dishes = data;
-          this.isLoading = false; // <--- This turns off the loading screen!
-          this.cdr.detectChanges();
+          this.isLoading = false; 
+          this.cdr.detectChanges(); 
         },
         error: (err) => {
-          console.error('❌ UI FAILED TO LOAD:', err);
+          console.error('Failed to load menu', err);
           this.isLoading = false;
           this.cdr.detectChanges();
         }
@@ -53,21 +52,16 @@ export class Menu implements OnInit {
     }
   }
 
-  submitToAI() {
-    if (!this.orderText.trim() || !this.restaurantId) return;
-    this.isParsing = true;
+  get filteredDishes() {
+    if (!this.searchQuery) return this.dishes;
+    const lowerCaseQuery = this.searchQuery.toLowerCase();
+    return this.dishes.filter(dish => 
+      dish.name.toLowerCase().includes(lowerCaseQuery) || 
+      dish.description.toLowerCase().includes(lowerCaseQuery)
+    );
+  }
 
-    // Send BOTH the text and the restaurant ID!
-    this.api.parseOrderText(this.orderText, this.restaurantId).subscribe({
-      next: (response) => {
-        localStorage.setItem('cartItems', JSON.stringify(response.parsed_items));
-        this.router.navigate(['/cart']);
-      },
-      error: (err) => {
-        console.error('AI Parsing failed', err);
-        this.isParsing = false;
-        this.cdr.detectChanges();
-      }
-    });
+  addToCart(dish: any) {
+    this.cartService.addToCart(dish);
   }
 }

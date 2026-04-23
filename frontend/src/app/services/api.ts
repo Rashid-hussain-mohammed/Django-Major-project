@@ -59,8 +59,29 @@ export class ApiService {
     return this.http.post<any>(`${this.baseUrl}/login/`, credentials);
   }
   // Fetch dishes for a specific restaurant ID
-getDishesByRestaurant(restaurantId: string): Observable<any> {
-  // We send the ID as a "query parameter" (e.g., ?restaurant=5)
-  return this.http.get(`${this.baseUrl}/dishes/?restaurant=${restaurantId}`);
-}
+// Update this function to use table_uuid!
+  getDishesByRestaurant(secureId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/dishes/?table_uuid=${secureId}`);
+  }
+// Fetch all orders for the logged-in manager
+  getManagerOrders(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/orders/`);
+  }
+
+  // Update an order's status (e.g., PENDING -> PREPARING)
+  updateOrderStatus(orderId: number, newStatus: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/orders/${orderId}/`, { status: newStatus });
+  }
+  // --- TABLE MANAGEMENT ---
+  getTables(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/tables/`);
+  }
+
+  createTable(payload: { number: number }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/tables/`, payload);
+  }
+
+  deleteTable(tableId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/tables/${tableId}/`);
+  }
 }

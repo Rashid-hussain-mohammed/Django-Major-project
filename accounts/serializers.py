@@ -1,10 +1,16 @@
 from rest_framework import serializers
-from .models import Dish, Order, OrderItem
+from .models import Dish, Order, OrderItem, Table
 
 class DishSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dish
         fields = '__all__'
+
+class TableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Table
+        fields = ['id', 'number', 'secure_id']
+        read_only_fields = ['secure_id'] # The backend auto-generates this!
 
 class OrderItemSerializer(serializers.ModelSerializer):
     # This automatically grabs the name of the dish so the frontend doesn't just get an ID number
@@ -16,8 +22,17 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'dish_id', 'dish_name', 'quantity']
 
 class OrderSerializer(serializers.ModelSerializer):
-    # This nests the items inside the order JSON automatically
-    items = OrderItemSerializer(many=True) 
+    # This nests the items inside the order JSON automatically 
+    items = OrderItemSerializer(many=True, required=False) 
+
+    class Meta:
+        model = Order
+        # Merged the fields and added 'owner' so it matches the database
+        fields = ['id', 'owner', 'table', 'status', 'total_price', 'created_at', 'items']
+        
+        # --- 🚨 THE MAGIC FIX IS SAFELY HERE NOW ---
+        read_only_fields = ['owner', 'table']
+
     def create(self, validated_data):
         # 1. Pull the items list OUT of the order data
         items_data = validated_data.pop('items', [])
@@ -34,7 +49,3 @@ class OrderSerializer(serializers.ModelSerializer):
             )
             
         return order
-    class Meta:
-        model = Order
-        fields = ['id', 'table', 'status', 'total_price', 'created_at', 'items']
-

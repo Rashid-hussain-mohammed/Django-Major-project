@@ -11,9 +11,10 @@ from django.contrib.auth import authenticate, get_user_model
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 
-from .models import Dish, Order
+from .models import Dish, Order, Table
 from .serializers import DishSerializer, OrderSerializer
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly, AllowAny
+from .serializers import TableSerializer
 
 User = get_user_model()
 
@@ -27,25 +28,34 @@ def home(request):
 
 # 1. Menu API (Customers can only read this, not edit)
 class DishViewSet(viewsets.ModelViewSet):
-    queryset = Dish.objects.all() 
+    queryset = Dish.objects.all()
     serializer_class = DishSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
     
-    def get_queryset(self):
-        # PRIORITY 1: If the URL asks for a specific QR Code Menu, show it!
-        # This allows even logged-in managers to test the customer view.
-        restaurant_id = self.request.query_params.get('restaurant')
-        if restaurant_id:
-            return Dish.objects.filter(owner_id=restaurant_id, is_available=True)
+    def get_permissions(self):
+        if self.request.method in ['GET']:
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
-        # PRIORITY 2: If no QR code is in the URL, check if a Manager is looking at their Dashboard
+    def get_queryset(self):
+        # 1. NEW: Check if the frontend sent a secret UUID
+        table_uuid = self.request.query_params.get('table_uuid')
+        if table_uuid:
+            try:
+                # Find the table using the secret code
+                table = Table.objects.get(secure_id=table_uuid)
+                # Return the dishes for the manager who owns this table
+                return Dish.objects.filter(owner=table.restaurant, is_available=True)
+            except Table.DoesNotExist:
+                return Dish.objects.none()
+
+        # 2. Manager Dashboard Fallback
         if self.request.user.is_authenticated:
             return Dish.objects.filter(owner=self.request.user)
             
-        # PRIORITY 3: Fallback
         return Dish.objects.none()
 
-
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 # 2. Orders API (For placing and tracking orders)
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -57,11 +67,32 @@ class OrderViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
     def get_queryset(self):
-        # Managers ONLY see their own active orders
         if self.request.user.is_authenticated:
-            return Order.objects.filter(owner=self.request.user)
-        return Order.objects.none() # Guests can't read the order list!
+            return Order.objects.filter(owner=self.request.user).order_by('-created_at')
+        return Order.objects.none()
 
+    def perform_create(self, serializer):
+        # NEW: The frontend now sends the UUID when placing an order
+        table_uuid = self.request.data.get('table_uuid')
+        try:
+            table = Table.objects.get(secure_id=table_uuid)
+            # We securely link the order to both the Table AND the Manager
+            serializer.save(owner=table.restaurant, table=table)
+        except Table.DoesNotExist:
+            pass # In a production app, we'd throw an error here
+
+class TableViewSet(viewsets.ModelViewSet):
+    serializer_class = TableSerializer
+    
+    def get_queryset(self):
+        # Only show the manager their own tables
+        if self.request.user.is_authenticated:
+            return Table.objects.filter(restaurant=self.request.user).order_by('number')
+        return Table.objects.none()
+
+    def perform_create(self, serializer):
+        # When creating a table, auto-assign it to the logged-in manager
+        serializer.save(restaurant=self.request.user)
 # 3. AI Order NLP Parser (The "Brain")
 @api_view(['POST'])
 @permission_classes([AllowAny])

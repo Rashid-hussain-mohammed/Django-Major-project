@@ -15,7 +15,8 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   
   // 3. Move the customer ordering system to /menu
-  { path: 'menu/:restaurantId/:tableId', component: Menu }, 
+  // Change this line!
+  { path: 'menu/:secureId', component: Menu }, 
   { path: 'cart', component: CartPage }, 
   { path: 'success', component: Success }, 
   { path: 'dashboard', component: Dashboard, canActivate: [authGuard] },

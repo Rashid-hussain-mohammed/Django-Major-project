@@ -24,7 +24,6 @@ export class Cart {
     return Number(price) * quantity;
   }
 
-  // --- NEW: Add and Remove items from inside the cart ---
   addToCart(item: any) {
     this.cartService.addToCart(item);
   }
@@ -32,16 +31,29 @@ export class Cart {
   removeFromCart(item: any) {
     this.cartService.removeFromCart(item);
   }
-  // ------------------------------------------------------
+
+  // --- UPDATED: Navigate back using the secure UUID ---
+  goBackToMenu() {
+    const secureId = localStorage.getItem('currentSecureId');
+    
+    if (secureId) {
+      this.router.navigate([`/menu/${secureId}`]);
+    } else {
+      this.router.navigate(['/login']); 
+    }
+  }
 
   checkout() {
     if (this.cartService.totalItems() === 0) return;
     
     this.isSubmitting = true;
 
-    // Package the cart data for Django
+    // --- UPDATED: Grab the UUID from the browser's memory ---
+    const secureId = localStorage.getItem('currentSecureId');
+
+    // Package the cart data for Django using the table_uuid
     const payload = {
-      table : 1,
+      table_uuid: secureId, 
       total_price: this.cartService.totalPrice(),
       items: this.cartService.cartItems().map(item => ({
         dish_id: item.id,
