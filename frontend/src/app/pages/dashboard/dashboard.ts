@@ -1,43 +1,64 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ApiService } from '../../services/api';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { WebsocketService } from '../../services/websocket';
+import { DatePipe, DecimalPipe, NgClass } from '@angular/common'; // <-- ADDED NgClass HERE
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, RouterLink, FormsModule],
+  imports: [DatePipe, DecimalPipe, RouterLink, FormsModule, NgClass], // <-- ADDED NgClass HERE
   templateUrl: './dashboard.html'
 })
-export class Dashboard implements OnInit {
-  // Added 'tables' to the activeTab types
+export class Dashboard implements OnInit, OnDestroy { // <-- Implement OnDestroy
   activeTab: 'overview' | 'orders' | 'menu' | 'tables' = 'overview'; 
   
   orders: any[] = [];
   reviews: any[] = [];
   dishes: any[] = []; 
-  tables: any[] = []; // Array to hold your tables
+  tables: any[] = []; 
   
   averageSentiment = 0;
   isLoading = true;
 
-  // Buckets for the Kanban Board
   pendingOrders: any[] = [];
   preparingOrders: any[] = [];
   completedOrders: any[] = [];
 
   newDish = { name: '', description: '', price: null, is_available: true };
-  newTableNumber: number | null = null; // For the create table input
+  newTableNumber: number | null = null; 
 
-  constructor(private api: ApiService) {}
+  // --- NEW: Inject the WebsocketService ---
+  constructor(private api: ApiService, private wsService: WebsocketService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.loadDashboardData();
+
+    // --- NEW: Start the Real-Time Connection! ---
+    // (We use '2' here assuming your test manager account ID is 2. 
+    // In a final production app, you would pull this dynamically from the logged-in user profile).
+    this.wsService.connectDashboard('1');
+
+    // Listen for the magic signal. If we hear it, reload the orders!
+    this.wsService.dashboardUpdates.subscribe(() => {
+      // We only need to reload the orders to save bandwidth
+      this.api.getOrders().subscribe(data => {
+        this.orders = data;
+        this.sortOrders();
+        this.cdr.detectChanges();
+      });
+    });
+  }
+
+  // Clean up the connection if the manager logs out or leaves the page
+  ngOnDestroy() {
+    this.wsService.disconnectDashboard();
   }
 
   loadDashboardData() {
-    // 1. Fetch Orders & Sort them into buckets
+    // ... (Keep the rest of your file exactly the same from here down!)
     this.api.getOrders().subscribe({
       next: (data) => {
         this.orders = data;
@@ -46,7 +67,6 @@ export class Dashboard implements OnInit {
       error: (err) => console.error('Failed to load orders', err)
     });
 
-    // 2. Fetch Reviews
     this.api.getReviews().subscribe(data => {
       this.reviews = data;
       if (this.reviews.length > 0) {
@@ -55,18 +75,15 @@ export class Dashboard implements OnInit {
       }
     });
 
-    // 3. Fetch Dishes
-    this.api.getDishes().subscribe(data => {
-      this.dishes = data;
-    });
+    this.api.getDishes().subscribe(data => this.dishes = data);
 
-    // 4. Fetch Tables
     this.api.getTables().subscribe(data => {
       this.tables = data;
       this.isLoading = false; 
     });
   }
-
+  
+  // ... (Keep sortOrders, changeOrderStatus, etc. exactly the same)
   // --- Order Management Functions ---
 
   sortOrders() {
@@ -139,5 +156,40 @@ export class Dashboard implements OnInit {
   getQrCodeUrl(secureId: string): string {
     const tableUrl = `http://localhost:4200/menu/${secureId}`;
     return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(tableUrl)}`;
+  }
+
+  // --- MANAGER CHAT VARIABLES ---
+  activeChatOrderId: string | null = null;
+  chatMessages: { message: string, sender: string }[] = [];
+  newChatMessage: string = '';
+  chatSub?: Subscription;
+
+  // --- MANAGER CHAT FUNCTIONS ---
+  openChat(orderId: number) {
+    this.activeChatOrderId = orderId.toString();
+    this.chatMessages = []; // Clear old messages
+    this.wsService.connectChat(this.activeChatOrderId);
+
+    // Unsubscribe from any previous chat to prevent double-messages
+    if (this.chatSub) this.chatSub.unsubscribe();
+
+    // Listen for messages in this specific room
+    this.chatSub = this.wsService.chatMessages.subscribe((data) => {
+      this.chatMessages.push({ message: data.message, sender: data.sender });
+      this.cdr.detectChanges(); // Force UI to update
+    });
+  }
+
+  closeChat() {
+    this.activeChatOrderId = null;
+    if (this.chatSub) this.chatSub.unsubscribe();
+    this.wsService.disconnectChat();
+  }
+
+  sendChatMessage() {
+    if (!this.newChatMessage.trim() || !this.activeChatOrderId) return;
+    // Send message as 'manager'
+    this.wsService.sendChatMessage(this.newChatMessage, 'manager');
+    this.newChatMessage = '';
   }
 }

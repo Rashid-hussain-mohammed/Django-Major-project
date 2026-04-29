@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',  
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -70,7 +72,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'rra.wsgi.application'
+##WSGI_APPLICATION = 'rra.wsgi.application'
+ASGI_APPLICATION = 'rra.asgi.application'
 
 
 # Database
@@ -128,4 +131,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication', # <-- THIS IS THE FIX
         'rest_framework.authentication.SessionAuthentication',
     ]
+}
+
+# --- CHANNELS SETUP ---
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }

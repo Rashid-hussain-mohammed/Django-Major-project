@@ -128,10 +128,16 @@
                   <div class="text-xs text-gray-400 mb-2">{{ order.created_at | date:'shortTime' }}</div>
                   <div class="text-xl font-black text-gray-900 mb-4">€{{ order.total_price }}</div>
                   
-                  <button (click)="changeOrderStatus(order.id, 'PREPARING')"
-                          class="w-full bg-red-600 text-white font-bold py-2 rounded-xl hover:bg-red-700 transition-colors">
-                    Start Preparing 👨‍🍳
-                  </button>
+                  <div class="flex gap-2">
+                    <button (click)="changeOrderStatus(order.id, 'PREPARING')"
+                            class="flex-1 bg-red-600 text-white font-bold py-2 rounded-xl hover:bg-red-700 transition-colors">
+                      Start Preparing 👨‍🍳
+                    </button>
+                    <button (click)="openChat(order.id)" 
+                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-300">
+                      💬 Chat
+                    </button>
+                  </div>
                 </div>
               } @empty {
                 <p class="text-red-400 font-bold text-center text-sm py-4">No pending orders.</p>
@@ -152,10 +158,16 @@
                   <div class="text-xs text-gray-400 mb-2">{{ order.created_at | date:'shortTime' }}</div>
                   <div class="text-xl font-black text-gray-900 mb-4">€{{ order.total_price }}</div>
                   
-                  <button (click)="changeOrderStatus(order.id, 'SERVED')"
-                          class="w-full bg-yellow-500 text-white font-bold py-2 rounded-xl hover:bg-yellow-600 transition-colors">
-                    Mark as Served 🍽️
-                  </button>
+                  <div class="flex gap-2">
+                    <button (click)="changeOrderStatus(order.id, 'SERVED')"
+                            class="flex-1 bg-yellow-500 text-white font-bold py-2 rounded-xl hover:bg-yellow-600 transition-colors">
+                      Mark as Served 🍽️
+                    </button>
+                    <button (click)="openChat(order.id)" 
+                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-300">
+                      💬 Chat
+                    </button>
+                  </div>
                 </div>
               } @empty {
                 <p class="text-yellow-500 font-bold text-center text-sm py-4">No orders in kitchen.</p>
@@ -176,16 +188,22 @@
                   <div class="text-xs text-gray-400 mb-2">{{ order.created_at | date:'shortTime' }}</div>
                   <div class="text-xl font-black text-gray-900 mb-4">€{{ order.total_price }}</div>
                   
-                  @if (order.status !== 'PAID') {
-                    <button (click)="changeOrderStatus(order.id, 'PAID')"
-                            class="w-full bg-emerald-600 text-white font-bold py-2 rounded-xl hover:bg-emerald-700 transition-colors">
-                      Confirm Payment 💳
+                  <div class="flex gap-2">
+                    @if (order.status !== 'PAID') {
+                      <button (click)="changeOrderStatus(order.id, 'PAID')"
+                              class="flex-1 bg-emerald-600 text-white font-bold py-2 rounded-xl hover:bg-emerald-700 transition-colors">
+                        Confirm Payment 💳
+                      </button>
+                    } @else {
+                      <div class="flex-1 bg-gray-100 text-gray-500 font-bold py-2 rounded-xl text-center">
+                        Paid & Closed
+                      </div>
+                    }
+                    <button (click)="openChat(order.id)" 
+                            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-xl font-bold text-sm hover:bg-gray-300">
+                      💬 Chat
                     </button>
-                  } @else {
-                    <div class="w-full bg-gray-100 text-gray-500 font-bold py-2 rounded-xl text-center">
-                      Paid & Closed
-                    </div>
-                  }
+                  </div>
                 </div>
               } @empty {
                 <p class="text-emerald-500 font-bold text-center text-sm py-4">No completed orders.</p>
@@ -344,4 +362,44 @@
       }
     </div>
   }
+
+  @if (activeChatOrderId) {
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col h-[500px]">
+        
+        <div class="bg-gray-900 text-white p-4 flex justify-between items-center">
+          <h3 class="font-bold">💬 Chat - Order #{{ activeChatOrderId }}</h3>
+          <button (click)="closeChat()" class="text-gray-400 hover:text-white font-bold text-xl">&times;</button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
+          @if (chatMessages.length === 0) {
+            <div class="text-gray-400 text-sm text-center mt-32">
+              No messages yet.
+            </div>
+          }
+          @for (msg of chatMessages; track $index) {
+            <div class="mb-3 flex" [ngClass]="msg.sender === 'manager' ? 'justify-end' : 'justify-start'">
+              <div class="max-w-[80%] rounded-2xl px-4 py-2 shadow-sm text-sm"
+                   [ngClass]="msg.sender === 'manager' ? 'bg-black text-white rounded-br-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm'">
+                {{ msg.message }}
+              </div>
+            </div>
+          }
+        </div>
+  
+        <div class="p-4 border-t border-gray-100 flex gap-2">
+          <input type="text" [(ngModel)]="newChatMessage" placeholder="Type reply..." 
+                 class="flex-1 border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-black"
+                 (keyup.enter)="sendChatMessage()">
+          <button (click)="sendChatMessage()" 
+                  class="bg-black text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-gray-800">
+            Send
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  }
+
 </div>

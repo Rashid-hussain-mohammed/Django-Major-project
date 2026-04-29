@@ -2,7 +2,7 @@ asgiref==3.11.0
 certifi==2026.2.25
 charset-normalizer==3.4.6
 click==8.3.1
-django==6.0.1
+Django==6.0.1
 djangorestframework==3.17.1
 djangorestframework-simplejwt==5.5.1
 idna==3.11
@@ -17,3 +17,6 @@ textblob==0.19.0
 tqdm==4.67.3
 urllib3==2.6.3
 vadersentiment==3.3.2
+channels==4.1.0
+daphne==4.1.2
+

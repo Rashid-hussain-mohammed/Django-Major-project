@@ -1,68 +1,102 @@
-<div class="max-w-2xl mx-auto p-4 mt-10 text-center">
+<div class="max-w-4xl mx-auto p-4 mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
   
-  <div class="bg-emerald-50 rounded-3xl p-10 mb-8 border border-emerald-100">
-    <div class="text-6xl mb-4">👨‍🍳</div>
-    <h1 class="text-4xl font-black text-gray-900 mb-2">Order Received!</h1>
-    <p class="text-lg text-emerald-700 font-medium">Your food is being prepared in the kitchen.</p>
+  <div class="text-center">
+    <div class="bg-emerald-50 rounded-3xl p-10 mb-8 border border-emerald-100">
+      <div class="text-6xl mb-4">👨‍🍳</div>
+      <h1 class="text-4xl font-black text-gray-900 mb-2">Order Received!</h1>
+      <p class="text-lg text-emerald-700 font-medium">Your food is being prepared in the kitchen.</p>
+    </div>
+
+    @if (!isAnalyzed) {
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-left">
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">How was your experience?</h3>
+        
+        <div class="mb-4">
+          <label class="block text-gray-700 font-bold mb-2">Food Quality (1-10)</label>
+          <input type="range" min="1" max="10" [(ngModel)]="foodRating" class="w-full accent-black">
+          <div class="text-center font-bold text-xl">{{ foodRating }} / 10</div>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-bold mb-2">Service (1-10)</label>
+          <input type="range" min="1" max="10" [(ngModel)]="serviceRating" class="w-full accent-black">
+          <div class="text-center font-bold text-xl">{{ serviceRating }} / 10</div>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-gray-700 font-bold mb-2">Leave a Review</label>
+          <textarea 
+            [(ngModel)]="feedback"
+            rows="4" 
+            placeholder="e.g., The burger was amazing, but the pizza was a bit cold!"
+            class="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-black transition-colors resize-none"></textarea>
+        </div>
+
+        <button 
+          (click)="submitFeedback()"
+          [disabled]="isSubmitting || !feedback"
+          class="w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-colors disabled:bg-gray-400">
+          {{ isSubmitting ? 'Analyzing...' : 'Submit Feedback' }}
+        </button>
+      </div>
+    } @else {
+      <div class="bg-gray-900 text-white rounded-3xl p-10 animate-fade-in text-center">
+        <div class="text-4xl mb-4">🤖</div>
+        <h3 class="text-2xl font-bold mb-2">Review Processed by AI</h3>
+        <p class="text-gray-400 mb-6">Our NLP model analyzed your text:</p>
+        
+        <div class="bg-black/50 rounded-xl p-6 mb-8 border border-gray-700">
+          <div class="text-sm text-gray-500 uppercase tracking-wider mb-1">VADER Sentiment Score</div>
+          <div class="text-5xl font-black" 
+               [class.text-emerald-400]="aiScore > 0" 
+               [class.text-red-400]="aiScore < 0"
+               [class.text-gray-300]="aiScore === 0">
+            {{ aiScore | number:'1.2-2' }}
+          </div>
+        </div>
+
+        <button routerLink="/" class="text-white hover:text-emerald-400 font-bold transition-colors">
+          &larr; Back to Menu
+        </button>
+      </div>
+    }
   </div>
 
-  @if (!isAnalyzed) {
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-left">
-      <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">How was your experience?</h3>
-      
-      <div class="mb-4">
-        <label class="block text-gray-700 font-bold mb-2">Food Quality (1-10)</label>
-        <input type="range" min="1" max="10" [(ngModel)]="foodRating" class="w-full accent-black">
-        <div class="text-center font-bold text-xl">{{ foodRating }} / 10</div>
-      </div>
-
-      <div class="mb-6">
-        <label class="block text-gray-700 font-bold mb-2">Service (1-10)</label>
-        <input type="range" min="1" max="10" [(ngModel)]="serviceRating" class="w-full accent-black">
-        <div class="text-center font-bold text-xl">{{ serviceRating }} / 10</div>
-      </div>
-
-      <div class="mb-6">
-        <label class="block text-gray-700 font-bold mb-2">Leave a Review</label>
-        <textarea 
-          [(ngModel)]="feedback"
-          rows="4" 
-          placeholder="e.g., The burger was amazing, but the pizza was a bit cold!"
-          class="w-full p-4 border border-gray-200 rounded-xl outline-none focus:border-black transition-colors resize-none"></textarea>
-      </div>
-
-      <button 
-        (click)="submitFeedback()"
-        [disabled]="isSubmitting || !feedback"
-        class="w-full bg-black text-white font-bold py-4 rounded-xl hover:bg-gray-800 transition-colors disabled:bg-gray-400">
-        {{ isSubmitting ? 'Analyzing...' : 'Submit Feedback' }}
-      </button>
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col h-[500px]">
+    <div class="bg-gray-900 text-white p-4 rounded-t-2xl flex items-center justify-between">
+      <h3 class="font-bold">💬 Live Kitchen Chat</h3>
+      <span class="flex h-3 w-3 relative">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+      </span>
     </div>
-  } @else {
-    <div class="bg-gray-900 text-white rounded-3xl p-10 animate-fade-in">
-      <div class="text-4xl mb-4">🤖</div>
-      <h3 class="text-2xl font-bold mb-2">Review Processed by AI</h3>
-      <p class="text-gray-400 mb-6">Our Natural Language Processing model analyzed your text:</p>
-      
-      <div class="bg-black/50 rounded-xl p-6 mb-8 border border-gray-700">
-        <div class="text-sm text-gray-500 uppercase tracking-wider mb-1">VADER Sentiment Score</div>
-        
-        <div class="text-5xl font-black" 
-             [class.text-emerald-400]="aiScore > 0" 
-             [class.text-red-400]="aiScore < 0"
-             [class.text-gray-300]="aiScore === 0">
-          {{ aiScore | number:'1.2-2' }}
+    
+    <div class="flex-1 overflow-y-auto p-4 bg-gray-50">
+      @if (chatMessages.length === 0) {
+        <div class="text-gray-400 text-sm text-center mt-32">
+          Forgot to add extra ketchup?<br>Send a message to the kitchen!
         </div>
-        
-        <p class="mt-2 text-sm text-gray-400">
-          (Scale from -1.0 to 1.0)
-        </p>
-      </div>
+      }
+      
+      @for (msg of chatMessages; track $index) {
+        <div class="mb-3 flex" [ngClass]="msg.sender === 'customer' ? 'justify-end' : 'justify-start'">
+          <div class="max-w-[80%] rounded-2xl px-4 py-2 shadow-sm text-sm"
+               [ngClass]="msg.sender === 'customer' ? 'bg-black text-white rounded-br-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm'">
+            {{ msg.message }}
+          </div>
+        </div>
+      }
+    </div>
 
-      <button routerLink="/" class="text-white hover:text-emerald-400 font-bold transition-colors">
-        &larr; Back to Menu
+    <div class="p-4 border-t border-gray-100 bg-white rounded-b-2xl flex gap-2">
+      <input type="text" [(ngModel)]="newMessage" placeholder="Type a message..." 
+             class="flex-1 border border-gray-200 rounded-xl px-4 py-2 text-sm outline-none focus:border-black"
+             (keyup.enter)="sendMessage()">
+      <button (click)="sendMessage()" 
+              class="bg-black text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-gray-800 transition-colors">
+        Send
       </button>
     </div>
-  }
+  </div>
 
 </div>
